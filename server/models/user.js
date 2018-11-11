@@ -3,6 +3,8 @@ const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 
+
+//Step 1 : use Schema to create an Object
 var UserSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -32,6 +34,7 @@ var UserSchema = new mongoose.Schema({
   }]
 });
 
+//Step 2: Create Methods
 UserSchema.methods.toJSON = function () {
   var user = this;
   var userObject = user.toObject();
@@ -39,17 +42,45 @@ UserSchema.methods.toJSON = function () {
   return _.pick(userObject, ['_id', 'email']);
 };
 
+
+
+//create Methodes
 UserSchema.methods.generateAuthToken = function () {
   var user = this;
   var access = 'auth';
   var token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
 
-  user.tokens.push({access, token});
+  user.tokens = user.tokens.concat([{access, token}]);
 
   return user.save().then(() => {
     return token;
   });
 };
+
+UserSchema.statics.findByToken = function (token)
+{
+  var User = this;
+
+  console.log(token);
+  var decoded;
+
+  try{
+
+   decoded = jwt.verify(token,'abc123');
+   console.log(decoded);
+  }catch(e){
+
+    // very important to learn how promisses works
+
+    return Promise.reject("Invalide Authentication Token");
+  }
+
+  return User.findOne({
+    '_id':decoded._id,
+    'tokens.token':token,
+    'tokens.access':'auth'
+  })
+}
 
 var User = mongoose.model('User', UserSchema);
 
