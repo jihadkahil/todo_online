@@ -137,4 +137,17 @@ User.findByCredentials(body.email,body.password).then((user)=>{
 });
 
 
+app.delete('/users/me/token',authentication,(req,res)=>{
+  req.user.removeToken(req.token).then(()=>{
+    res.send({'success':true});
+  
+  }).catch((err)=>{
+  
+    re.status('404').send({'error':err});
+  
+  })
+  
+})
+
+
 module.exports = {app};

@@ -17,7 +17,6 @@ var authentication = (req,res,next) =>{
      next();
     }).catch((err)=>{
   
-  
       res.status('404').send({"error":err});
     });
   };
