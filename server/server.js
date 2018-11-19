@@ -116,8 +116,6 @@ app.listen(port, () => {
 });
 
 
-
-
 app.get('/users/me',authentication,(req,res)=>{
   res.send(req.user);
 
